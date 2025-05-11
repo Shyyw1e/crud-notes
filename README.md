@@ -1,129 +1,146 @@
-#crud-notes
 
 
-2. GET /list — получить все заметки
-Создайте новый запрос в Postman.
+````markdown
+# Notes API
 
-Выберите метод GET.
+Простой REST-сервис для управления заметками в памяти.
 
-Введите URL без завершающего слэша:
+## Запуск
 
---bash
-http://localhost:8080/api/notes
-Нажмите Send.
---
-Если в памяти ещё нет заметок, вы увидите:
+```bash
+go run main.go
+````
 
-json
-Копировать
-Редактировать
-[]
-Если запрос возвращает 404 page not found, проверьте, что:
+Сервер будет доступен по адресу `http://localhost:8080`.
 
-Вы именно на /api/notes, а не на /api/notes/
+---
 
-Сервер действительно слушает порт 8080
+## Postman Collection
 
-В Postman выбран именно HTTP (не HTTPS) и правильный хост
+Вы можете импортировать следующие примеры запросов в Postman или вручную создать их по описанию.
 
-3. POST /api/notes — создать новую заметку
-Создайте новый запрос.
+### Переменные окружения
 
-Выберите метод POST.
+| Переменная    | Значение                   |
+| ------------- | -------------------------- |
+| `{{baseUrl}}` | `http://localhost:8080`    |
+| `{{noteId}}`  | ID заметки (например, `1`) |
 
-URL такой же:
+---
 
-bash
-Копировать
-Редактировать
-http://localhost:8080/api/notes
-Перейдите на вкладку Headers и добавьте:
+### 1. Получить все заметки
 
-pgsql
-Копировать
-Редактировать
-Content-Type: application/json
-Перейдите на вкладку Body, выберите raw → JSON, и введите, например:
+* **Метод**: `GET`
+* **URL**: `{{baseUrl}}/api/notes`
+* **Headers**:
 
-json
-Копировать
-Редактировать
-{ "text": "Hello, Postman!" }
-Нажмите Send.
+  * `Accept: application/json`
 
-Ожидаемый ответ:
+#### Пример ответа (200 OK)
 
-http
-Копировать
-Редактировать
-HTTP/1.1 201 Created
-Content-Type: application/json
+```json
+[
+  { "id": 1, "text": "First note" },
+  { "id": 2, "text": "Another note" }
+]
+```
 
-{ "id": 1, "text": "Hello, Postman!" }
-4. GET /api/notes/{id} — получить одну заметку
-Метод GET.
+---
 
-URL, например, чтобы получить заметку с id=1:
+### 2. Создать новую заметку
 
-bash
-Копировать
-Редактировать
-http://localhost:8080/api/notes/1
-Send.
+* **Метод**: `POST`
+* **URL**: `{{baseUrl}}/api/notes`
+* **Headers**:
 
-Ожидаемый ответ:
+  * `Content-Type: application/json`
+* **Body** (raw JSON):
 
-json
-Копировать
-Редактировать
-{ "id": 1, "text": "Hello, Postman!" }
-5. PUT /api/notes/{id} — обновить заметку
-Метод PUT.
+```json
+{
+  "text": "My new note"
+}
+```
 
-URL:
+#### Пример ответа (201 Created)
 
-bash
-Копировать
-Редактировать
-http://localhost:8080/api/notes/1
-В Headers:
+```json
+{
+  "id": 3,
+  "text": "My new note"
+}
+```
 
-pgsql
-Копировать
-Редактировать
-Content-Type: application/json
-В Body (raw / JSON):
+---
 
-json
-Копировать
-Редактировать
-{ "text": "Updated text" }
-Send.
+### 3. Получить заметку по ID
 
-Ожидаемый ответ:
+* **Метод**: `GET`
+* **URL**: `{{baseUrl}}/api/notes/{{noteId}}`
+* **Headers**:
 
-http
-Копировать
-Редактировать
-HTTP/1.1 200 OK
-Content-Type: application/json
+  * `Accept: application/json`
 
-{ "id": 1, "text": "Updated text" }
-6. DELETE /api/notes/{id} — удалить заметку
-Метод DELETE.
+#### Пример ответа (200 OK)
 
-URL:
+```json
+{
+  "id": 2,
+  "text": "Another note"
+}
+```
 
-bash
-Копировать
-Редактировать
-http://localhost:8080/api/notes/1
-Send.
+Если заметка не найдена, возвращается `404 Not Found`.
 
-Ожидаемый ответ:
+---
 
-http
-Копировать
-Редактировать
-HTTP/1.1 204 No Content
-После этого повторный GET /api/notes/1 вернёт 404 Not Found.
+### 4. Обновить текст заметки
+
+* **Метод**: `PUT`
+* **URL**: `{{baseUrl}}/api/notes/{{noteId}}`
+* **Headers**:
+
+  * `Content-Type: application/json`
+* **Body** (raw JSON):
+
+```json
+{
+  "text": "Updated note text"
+}
+```
+
+#### Пример ответа (200 OK)
+
+```json
+{
+  "id": 2,
+  "text": "Updated note text"
+}
+```
+
+---
+
+### 5. Удалить заметку
+
+* **Метод**: `DELETE`
+* **URL**: `{{baseUrl}}/api/notes/{{noteId}}`
+
+#### Пример ответа (204 No Content)
+
+Нет тела ответа.
+
+---
+
+## Импорт коллекции в Postman
+
+1. Откройте Postman.
+2. Нажмите **Import** → **Raw Text**.
+3. Вставьте URL или сохраните локально этот файл как `README.md`, затем при импорте выберите его.
+
+Или создайте коллекцию вручную, добавив запросы, как описано выше.
+
+> **Совет:** Заводите в окружении Postman переменные `baseUrl` и `noteId` для удобства тестирования.
+
+---
+
+Готово! Теперь вы можете быстро тестировать все эндпоинты вашего сервера через Postman.
